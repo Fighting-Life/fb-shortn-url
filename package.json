@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@cloudamqp/amqp-client": "^4.1.1",
-    "@iconify-json/simple-icons": "^1.2.95",
+    "@iconify-json/simple-icons": "^1.2.96",
     "@internationalized/date": "^3.12.4",
     "@lucide/vue": "^1.31.0",
     "@morev/vue-transitions": "^3.0.5",
