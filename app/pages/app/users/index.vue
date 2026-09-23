@@ -1,5 +1,17 @@
 <script setup lang="ts">
-definePageMeta({ middleware: ["auth", "admin"] });
+const route = useRoute();
+
+definePageMeta({
+  layout: "auth",
+  middleware: ["auth", "admin"]
+});
+useSeoMeta({
+  title: "Users - LinkMask",
+  description: "Users - LinkMask",
+  robots: "noindex, nofollow",
+  ogImage: "/logo.png",
+  ogUrl: route.fullPath,
+});
 
 type AdminUser = {
   id: string;

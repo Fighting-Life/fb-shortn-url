@@ -1,5 +1,17 @@
 <script setup lang="ts">
-definePageMeta({ middleware: ["auth", "admin"] });
+const route = useRoute();
+
+definePageMeta({
+  layout: "auth",
+  middleware: ["auth", "admin"]
+});
+useSeoMeta({
+  title: "Settings - LinkMask",
+  description: "Settings - LinkMask",
+  robots: "noindex, nofollow",
+  ogImage: "/logo.png",
+  ogUrl: route.fullPath,
+});
 
 type AuditItem = { id: string; action: string; resource: string; resource_id: string | null; user: { name: string; email: string }; created_at: string };
 const settings = reactive<Record<string, string>>({});
@@ -126,7 +138,7 @@ onMounted(loadData);
                     </td>
                     <td class="px-3 py-3">{{ log.resource }}<span v-if="log.resource_id"
                         class="ml-1 text-xs text-muted">({{
-                        log.resource_id }})</span></td>
+                          log.resource_id }})</span></td>
                   </tr>
                 </tbody>
               </table>

@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { getHeader, type H3Event } from "h3";
 import { randomBytes } from "node:crypto";
 
 export function generateToken(bytes = 32) {

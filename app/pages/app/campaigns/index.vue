@@ -1,4 +1,18 @@
 <script setup lang="ts">
+const route = useRoute();
+
+definePageMeta({
+  layout: "auth",
+  middleware: ["auth"]
+});
+useSeoMeta({
+  title: "Campaigns - LinkMask",
+  description: "Campaigns - LinkMask",
+  robots: "noindex, nofollow",
+  ogImage: "/logo.png",
+  ogUrl: route.fullPath,
+});
+
 type CampaignStatus = "draft" | "active" | "paused" | "archived" | "blocked";
 
 type CampaignRow = {

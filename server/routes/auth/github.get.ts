@@ -28,11 +28,8 @@ export default defineOAuthGitHubEventHandler({
       avatar,
       tokens: {
         accessToken: tokens.access_token,
-        refreshToken: tokens.refreshToken,
-        expiresAt: tokens.expiresAt,
-        tokenType: tokens.tokenType,
+        tokenType: tokens.token_type,
         scope: tokens.scope,
-        idToken: tokens.idToken,
       },
     });
 

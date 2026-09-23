@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
       const session = await getUserSession(event);
       if (!session?.user) return;
 
-      const redirect = url.searchParams.get("redirect") || "/app/chats";
+      const redirect = url.searchParams.get("redirect") || "/app";
       return sendRedirect(event, redirect);
     } catch {
       return; // continue to login page

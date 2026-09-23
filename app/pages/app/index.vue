@@ -1,4 +1,18 @@
 <script setup lang="ts">
+const route = useRoute();
+
+definePageMeta({
+  layout: "auth",
+  middleware: ["auth"]
+});
+useSeoMeta({
+  title: "Dashboard - LinkMask",
+  description: "Dashboard - LinkMask",
+  robots: "noindex, nofollow",
+  ogImage: "/logo.png",
+  ogUrl: route.fullPath,
+});
+
 type AnalyticsOverview = {
   range: { from: string; to: string };
   totals: {

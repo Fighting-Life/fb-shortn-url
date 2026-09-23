@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   const previous = await prisma.setting.findMany({ where: { group_name: "admin" } });
   const previousMap = Object.fromEntries(previous.map((item) => [item.key, item.value]));
-  const saved: Record<string, string> = { ...ADMIN_SETTING_DEFAULTS };
+  const saved: Record<string, any> = { ...ADMIN_SETTING_DEFAULTS };
 
   for (const [key, rawValue] of entries) {
     if (typeof rawValue !== "string" && typeof rawValue !== "number" && typeof rawValue !== "boolean") {

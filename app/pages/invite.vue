@@ -1,6 +1,18 @@
 <script setup lang="ts">
 definePageMeta({ layout: "guest", middleware: "guest" });
 
+useSeoMeta({
+  title: "Invite",
+  description: "Invite Confirmation",
+  robots: "noindex, nofollow",
+  ogTitle: "Invite",
+  ogDescription: "Invite Confirmation",
+  twitterCard: "summary_large_image",
+  twitterSite: "@agcforge",
+  twitterCreator: "@agcforge",
+});
+
+
 const route = useRoute();
 const token = computed(() => typeof route.query.token === "string" ? route.query.token : "");
 const password = ref("");

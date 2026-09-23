@@ -57,15 +57,10 @@ export function normalizeSafeUrl(value: string): string {
 
 export const safeUrlSchema = z.string().trim().transform(normalizeSafeUrl);
 
-export const campaignInputSchema = z.object({
-  name: z.string().trim().min(2, "Nama campaign minimal 2 karakter.").max(160),
-  targetUrl: safeUrlSchema,
-  blockedUrl: safeUrlSchema,
-  startsAt: z.string().datetime().nullable().optional(),
-  expiresAt: z.string().datetime().nullable().optional(),
-  status: z.enum(["draft", "active", "paused", "archived", "blocked"]).optional(),
-  trackingConfig: trackingConfigSchema,
-}).superRefine((value, context) => {
+const validateCampaignDates = (
+  value: { startsAt?: string | null; expiresAt?: string | null },
+  context: z.RefinementCtx,
+) => {
   if (value.startsAt && value.expiresAt) {
     const startsAt = new Date(value.startsAt);
     const expiresAt = new Date(value.expiresAt);
@@ -78,6 +73,24 @@ export const campaignInputSchema = z.object({
       });
     }
   }
+};
+
+export const campaignInputBaseSchema = z.object({
+  name: z.string().trim().min(2, "Nama campaign minimal 2 karakter.").max(160),
+  targetUrl: safeUrlSchema,
+  blockedUrl: safeUrlSchema,
+  startsAt: z.string().datetime().nullable().optional(),
+  expiresAt: z.string().datetime().nullable().optional(),
+  status: z.enum(["draft", "active", "paused", "archived", "blocked"]).optional(),
+  trackingConfig: trackingConfigSchema,
 });
+
+export const campaignInputSchema = campaignInputBaseSchema.superRefine(
+  validateCampaignDates,
+);
+
+export const campaignPatchSchema = campaignInputBaseSchema
+  .partial()
+  .superRefine(validateCampaignDates);
 
 export type CampaignInput = z.infer<typeof campaignInputSchema>;

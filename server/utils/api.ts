@@ -1,5 +1,5 @@
 import type { H3Event } from "h3";
-import { H3Error, setResponseStatus } from "h3";
+import { getHeader, H3Error, setHeader, setResponseStatus } from "h3";
 
 export function apiSuccess<T>(
   event: H3Event,

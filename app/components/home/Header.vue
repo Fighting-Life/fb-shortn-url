@@ -23,7 +23,8 @@ const mobileOpen = ref(false)
   <header class="border-b border-(--page-border) sticky top-0 z-40 bg-(--page-bg)/90 backdrop-blur">
     <div class="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
       <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
-        <span class="w-2.5 h-2.5 rounded-full bg-pine-500" aria-hidden="true" />
+        <!-- <span class="w-2.5 h-2.5 rounded-full bg-pine-500" aria-hidden="true" /> -->
+        <img src="/logo.png" alt="App Logo" class="w-6 h-6 rounded-full" aria-hidden="true" />
         <span class="font-display text-lg tracking-tight">Link Mask</span>
       </NuxtLink>
 

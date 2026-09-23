@@ -583,14 +583,49 @@ Aturan:
 
 ### Phase 8 — Production Hardening
 
-- [ ] Security review dan dependency audit.
-- [ ] SSRF test.
-- [ ] Authorization matrix test.
+- [x] Tambahkan security headers global dan request correlation ID.
+- [x] Fail-closed internal health endpoint dengan token wajib.
+- [x] Hilangkan wildcard CORS pada API same-origin.
+- [x] Security review awal dan dependency audit dijalankan.
+- [x] SSRF-style URL validation test ditambahkan.
+- [ ] Remediasi dependency advisory transitive dan lockfile refresh.
+- [x] Authorization matrix test dasar.
 - [ ] Penetration test untuk endpoint penting.
 - [ ] Backup/restore drill.
-- [ ] Monitoring dan alert.
-- [ ] Runbook incident response.
+- [x] Monitoring dan alert checklist.
+- [x] Runbook incident response.
 - [ ] Staged rollout dengan custom domain.
+
+#### Environment checklist sebelum deploy Vercel
+
+Wajib:
+
+- `DATABASE_URL`
+- `DATABASE_URL_UNPOOLED`
+- `NUXT_SESSION_PASSWORD`
+- `PUBLIC_SITE_URL` dengan domain HTTPS milik sendiri
+- `TRACKING_SECRET`
+- `INTERNAL_HEALTH_TOKEN`
+
+Opsional, aktif hanya jika dikonfigurasi:
+
+- `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN`
+- `CLOUDAMQP_URL`
+- `GA4_API_SECRET`
+- `META_CAPI_ACCESS_TOKEN`
+- `TIKTOK_ACCESS_TOKEN`
+
+- Jangan memasukkan secret ke `runtimeConfig.public`, repository, atau URL query string.
+
+### Phase 9 — Release Readiness
+
+- [x] Pastikan asset `robots.txt` tersedia pada path production.
+- [x] Jalankan production build penuh dengan environment Vercel staging-like environment.
+- [ ] Jalankan smoke test login, campaign CRUD, redirect, dan health check.
+- [ ] Verifikasi custom domain dan HTTPS redirect.
+- [ ] Verifikasi migration database production.
+- [ ] Lakukan staged rollout dan rollback drill.
+- [ ] Tinjau ulang dependency advisory sebelum go-live.
 
 ---
 
@@ -629,7 +664,7 @@ Aturan:
 ### Security test
 
 - Open redirect.
-- SSRF.
+- SSRF URL validation dasar.
 - IDOR/BOLA.
 - XSS pada campaign name/URL metadata.
 - SQL injection melalui filter/search.

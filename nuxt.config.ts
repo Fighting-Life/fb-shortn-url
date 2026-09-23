@@ -118,11 +118,13 @@ export default defineNuxtConfig({
       websocket: true,
       wasm: false,
     },
+    future: {
+      nativeSWR: true,
+    },
     prerender: {
       crawlLinks: false,
       failOnError: false,
       ignore: ["/api/**", "/app/**", "/__sitemap__/style.xsl"],
-      routes: ["/robots.txt"],
     },
     minify: isProd,
     ...(isDev && {
@@ -150,9 +152,7 @@ export default defineNuxtConfig({
         "Content-Type": "application/xml",
       },
     },
-    "/_robots.txt": {
-      prerender: true,
-    },
+
     "/.well-known/**": {
       static: true,
       headers: {
@@ -172,13 +172,7 @@ export default defineNuxtConfig({
         },
       },
     "/api/**": {
-      cors: true,
       cache: false,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
     },
   },
   app: {
@@ -296,14 +290,6 @@ export default defineNuxtConfig({
       "2xl": 1536,
     },
   },
-  $production: {
-    image: {
-      provider: 'vercel',
-      vercel: {
-        minimumCacheTTL: 3600 // Cache optimized images for 1 hour
-      }
-    }
-  },
   runtimeConfig: {
     APP_NAME: process.env.APP_NAME,
     NODE_ENV: process.env.NODE_ENV,
@@ -349,8 +335,13 @@ export default defineNuxtConfig({
     SESSION_COOKIE_NAME: process.env.SESSION_COOKIE_NAME,
     SESSION_SECURE: process.env.SESSION_SECURE,
     SESSION_HTTP_ONLY: process.env.SESSION_HTTP_ONLY,
+    INTERNAL_HEALTH_TOKEN: process.env.INTERNAL_HEALTH_TOKEN,
     CACHE_TTL: process.env.CACHE_TTL,
     CACHE_PREFIX: process.env.CACHE_PREFIX,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+    CLOUDINARY_UPLOAD_PRESET: process.env.CLOUDINARY_UPLOAD_PRESET,
     public: {
       APP_NAME: process.env.APP_NAME,
       NODE_ENV: process.env.NODE_ENV,

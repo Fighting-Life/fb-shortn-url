@@ -6,13 +6,13 @@ declare module "#auth-utils" {
     email: string;
     name: string;
     phone?: string | null;
-    avatar_url?: string | null;
+    avatar?: string | null;
     role?: UserRole | null;
     status: UserStatus;
     is_active: boolean;
-    email_verified_at?: string;
-    last_login_at?: string;
-    created_at: string;
+    email_verified_at?: Date | null;
+    last_login_at?: Date | null;
+    created_at: Date;
   }
 
   interface UserSession {

@@ -1,5 +1,5 @@
 import { getRouterParam, readBody } from "h3";
-import { campaignInputSchema } from "../../../shared/utils/campaign";
+import { campaignPatchSchema } from "../../../shared/utils/campaign";
 import { apiError, apiSuccess } from "../../utils/api";
 import { writeAuditLog } from "../../utils/audit";
 import { requireSession } from "../../utils/auth";
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const parsed = campaignInputSchema.partial().safeParse(body);
+  const parsed = campaignPatchSchema.safeParse(body);
 
   if (!parsed.success) {
     apiError("VALIDATION_ERROR", "Data campaign tidak valid.", 422, parsed.error.flatten());

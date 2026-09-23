@@ -1,4 +1,25 @@
-import { H3Event } from "h3";
+
+import { getQuery, readBody, type H3Event } from "h3";
+import {
+  comparePassword,
+  generateHashPassword,
+} from "../../shared/utils/password";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resendEmailSchema,
+  resetPasswordSchema,
+  verifyEmailSchema,
+} from "../../shared/utils/validator";
+import {
+  checkRateLimit,
+  getAllHeaderIdentifiers,
+  handleRequestError,
+} from "../utils/api";
+import { buildSessionUser, setAuthSession } from "../utils/auth";
+import { prisma } from "../utils/prisma";
+import { generateToken } from "../utils/token";
 
 export class AuthHandler {
   private event: H3Event;
@@ -450,7 +471,7 @@ export class AuthHandler {
         success: true,
         message: "Email verified successfully.",
         data: {
-          redirectUrl: "/app/chats",
+          redirectUrl: "/app",
         },
       };
     } catch (error) {

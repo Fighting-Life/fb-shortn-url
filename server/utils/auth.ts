@@ -1,8 +1,8 @@
-import type { UserSession } from "#auth-utils";
-// @ts-ignore
+import type { User, UserSession } from "#auth-utils";
 import type { UserRole } from "@prisma/client";
 import type { H3Event } from "h3";
-
+import { generateHashPassword, generateRandomPassword } from "../../shared/utils/password";
+import { prisma } from "./prisma";
 type PrismaLike = typeof prisma;
 
 type OAuthProvider = "github" | "google";
@@ -48,19 +48,7 @@ export async function getUserForSession(
 export function buildSessionUser(
   user: NonNullable<Awaited<ReturnType<typeof getUserForSession>>>,
 ) {
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    avatar: user.avatar,
-    role: user?.role ?? null,
-    status: user.status,
-    is_active: user.is_active,
-    email_verified_at: user.email_verified_at?.toISOString(),
-    last_login_at: user.last_login_at?.toISOString(),
-    created_at: user.created_at?.toISOString(),
-  };
+  return user
 }
 
 export async function setAuthSession(

@@ -12,7 +12,7 @@ useSeoMeta({
   description: "Contact LinkMask - Secure URL Shortener & Link Cloaker",
   ogTitle: "Contact LinkMask",
   ogDescription: "Contact LinkMask - Secure URL Shortener & Link Cloaker",
-  robots: "noindex, nofollow",
+  robots: "index, follow",
   ogImage: "/logo.png",
   ogUrl: route.fullPath,
   twitterCard: "summary_large_image",

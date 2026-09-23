@@ -8,7 +8,7 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => [
     {
       label: user.value?.name ?? "User",
       avatar: {
-        src: user.value?.avatar_url || undefined,
+        src: user.value?.avatar || undefined,
         alt: user.value?.name ?? "User",
         size: "xs",
         color: "primary",
@@ -75,9 +75,7 @@ const links = [
             <UDashboardSidebarCollapse />
           </template>
           <template #right>
-            <ColorModeButton />
-            <UButton icon="material-symbols:notifications" color="neutral" variant="ghost" size="md" shadow
-              class="text-warning" />
+            <ThemeSwitcher />
             <UDropdownMenu :items="userMenuItems">
               <button
                 class="w-full flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all text-left cursor-pointer">

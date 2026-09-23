@@ -13,7 +13,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
       type: "label",
       label: user.value?.name ?? "",
       avatar: {
-        src: user.value?.avatar_url || undefined,
+        src: user.value?.avatar || undefined,
         alt: user.value?.name ?? "",
       },
     },
@@ -50,7 +50,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
   }">
     <UButton :label="collapsed ? undefined : (user?.name ?? '')"
       :trailing-icon="collapsed ? undefined : 'i-lucide-chevrons-up-down'" :avatar="{
-        src: user?.avatar_url || undefined,
+        src: user?.avatar || undefined,
         alt: user?.name ?? '',
       }" color="neutral" variant="ghost" block :square="collapsed" class="data-[state=open]:bg-elevated text-sm" :ui="{
         trailingIcon: 'text-dimmed',

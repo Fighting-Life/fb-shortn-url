@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
@@ -79,7 +81,7 @@ export const fileSchema = z.instanceof(File).superRefine(async (file, ctx) => {
 export const loginSchema = z.object({
   email: z.string().email("Invalid email").min(1),
   password: z
-    .string({ message: "Password is required" })
+    .string({ required_error: "Password is required" })
     .min(1, { message: "Password is required" })
     .min(6, { message: "Password must be at least 6 characters long" })
     .transform((value) => value.replaceAll(/\s+/g, "")),
@@ -88,11 +90,11 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     full_name: z
-      .string({ message: "First name is required" })
+      .string({ required_error: "First name is required" })
       .min(3, "First name must be at least 3 characters long")
       .nonempty("First name is required"),
     email: z
-      .string({ message: "Email is required" })
+      .string({ required_error: "Email is required" })
       .email("Email is not valid")
       .nonempty("Email is required"),
     phone: z
@@ -116,7 +118,7 @@ export const registerSchema = z
       .or(z.literal("")),
 
     password: z
-      .string({ message: "Password is required" })
+      .string({ required_error: "Password is required" })
       .min(1, { message: "Password is required" })
       .min(6, { message: "Password must be at least 6 characters long" })
       .regex(/[A-Z]/, {
@@ -126,7 +128,7 @@ export const registerSchema = z
       .transform((value) => value.replaceAll(/\s+/g, "")),
 
     confirm_password: z
-      .string({ message: "Confirm password is required" })
+      .string({ required_error: "Confirm password is required" })
       .nonempty({ message: "Confirm password is required" })
       .transform((value) => value.replaceAll(/\s+/g, "")),
   })
@@ -172,7 +174,7 @@ export const verifyEmailSchema = z.object({
 });
 export const updateProfileSchema = z.object({
   full_name: z
-    .string({ message: "Full name is required" })
+    .string({ required_error: "Full name is required" })
     .min(3, "Full name must be at least 3 characters long")
     .nonempty("Full name is required"),
   email: z
@@ -201,12 +203,12 @@ export const updateProfileSchema = z.object({
 });
 export const updatePasswordSchema = z.object({
   current_password: z
-    .string({ message: "Current password is required" })
+    .string({ required_error: "Current password is required" })
     .min(1, { message: "Current password is required" })
     .min(6, { message: "Current password must be at least 6 characters long" })
     .transform((value) => value.replaceAll(/\s+/g, "")),
   new_password: z
-    .string({ message: "New password is required" })
+    .string({ required_error: "New password is required" })
     .min(6, { message: "New password must be at least 6 characters long" })
     .transform((value) => value.replaceAll(/\s+/g, "")),
   confirm_password: z
@@ -225,6 +227,18 @@ export const resendEmailSchema = z.object({
   email: z.string().email(),
 });
 
+export const updateAvatarOnlySchema = z.object({
+  avatar: z
+    .string()
+    .url("URL avatar is not valid.")
+    .optional()
+    .transform((v) => v ?? ""),
+});
+
+export const assignRoleSchema = z.object({
+  role: z.enum(["admin", "user"]).default("user"),
+});
+
 export const ImageUploadSchema = toTypedSchema(imageUploadSchema);
 export const FileSchema = toTypedSchema(fileSchema);
 export const LoginSchema = toTypedSchema(loginSchema);
@@ -237,6 +251,9 @@ export const UpdateProfileSchema = toTypedSchema(updateProfileSchema);
 export const UpdatePasswordSchema = toTypedSchema(updatePasswordSchema);
 export const ActivatedTwoFactorSchema = toTypedSchema(activatedTwoFactorSchema);
 export const ResendEmailSchema = toTypedSchema(resendEmailSchema);
+export const UpdateAvatarOnlySchema = toTypedSchema(updateAvatarOnlySchema);
+export const AssignRoleSchema = toTypedSchema(assignRoleSchema);
+
 
 export type ImageUploadInput = z.infer<typeof imageUploadSchema>;
 export type FileInput = z.infer<typeof fileSchema>;
@@ -250,6 +267,8 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>;
 export type ActivatedTwoFactorInput = z.infer<typeof activatedTwoFactorSchema>;
 export type ResendEmailInput = z.infer<typeof resendEmailSchema>;
+export type UpdateAvatarOnlyInput = z.infer<typeof updateAvatarOnlySchema>;
+export type AssignRoleInput = z.infer<typeof assignRoleSchema>;
 
 
 export const contactSchema = z.object({

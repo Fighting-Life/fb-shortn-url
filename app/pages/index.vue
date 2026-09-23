@@ -9,7 +9,7 @@ useSeoMeta({
   description: "Shorten, hide, and protect your destination links. Cloakify offers secure URL cloaking, advanced link tracking, and seamless redirects for marketers.",
   ogTitle: "Link Mask",
   ogDescription: "Secure URL shortener and link cloaker",
-  robots: "noindex, nofollow",
+  robots: "index, follow",
   ogImage: "/logo.png",
   ogUrl: route.fullPath,
   twitterCard: "summary_large_image",

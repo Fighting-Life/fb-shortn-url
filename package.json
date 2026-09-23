@@ -8,7 +8,13 @@
     "generate": "nuxt generate",
     "preview": "node --max-old-space-size=8192 ./node_modules/nuxt/bin/nuxt.mjs preview",
     "postinstall": "nuxt prepare",
+    "db:validate": "prisma validate",
+    "db:migrate:status": "prisma migrate status",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "predeploy:verify": "pnpm db:validate && pnpm test:security && pnpm typecheck",
     "lint": "eslint .",
+    "test:security": "node --import tsx --test tests/security/*.test.ts",
+    "smoke:staging": "node scripts/smoke.mjs",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
@@ -32,6 +38,7 @@
     "@vueuse/core": "^15.0.0",
     "@vueuse/nuxt": "15.0.0",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "jsonwebtoken": "^9.0.3",
@@ -47,7 +54,7 @@
     "unique-names-generator": "^4.7.1",
     "vue": "^3.5.40",
     "vue3-toastify": "^0.2.9",
-    "zod": "^4.6.5"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@iconify-json/flat-color-icons": "^1.2.3",

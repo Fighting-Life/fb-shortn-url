@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "03:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - security
+    groups:
+      nuxt:
+        patterns:
+          - "nuxt"
+          - "@nuxt/*"
+          - "nitropack"
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+      frontend:
+        patterns:
+          - "vue"
+          - "vue-*"
+          - "@vue/*"
+          - "tailwindcss"
+          - "@tailwindcss/*"
