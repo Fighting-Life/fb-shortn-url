@@ -1,6 +1,9 @@
 allowBuilds:
+  '@morev/vue-transitions': true
   '@parcel/watcher': false
+  '@prisma/engines': true
   '@tailwindcss/oxide': false
   esbuild: false
+  prisma: true
   unrs-resolver: false
   vue-demi: false
