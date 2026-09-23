@@ -85,7 +85,7 @@
     "prisma": "^7.10.0",
     "tailwind-merge": "^3.7.0",
     "tailwind-scrollbar": "^4.0.2",
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.11"
   },
