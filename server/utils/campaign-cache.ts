@@ -4,11 +4,14 @@ import { useRedis } from "./redis";
 type RedirectCampaign = {
   id: string;
   target_url: string;
+  target_urls: unknown;
   blocked_url: string;
   status: string;
   starts_at: string | null;
   expires_at: string | null;
   rule_config: unknown;
+  device_host: DeviceType;
+  tracking_config: unknown;
 };
 
 function cacheKey(shortCode: string) {
@@ -41,11 +44,14 @@ export async function getRedirectCampaign(
     select: {
       id: true,
       target_url: true,
+      target_urls: true,
       blocked_url: true,
       status: true,
       starts_at: true,
       expires_at: true,
       rule_config: true,
+      device_host: true,
+      tracking_config: true,
     },
   });
 

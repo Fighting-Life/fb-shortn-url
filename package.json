@@ -5,6 +5,7 @@
   "scripts": {
     "build": "prisma generate && node --max-old-space-size=8192 ./node_modules/nuxt/bin/nuxt.mjs build",
     "dev": "node --max-old-space-size=8192 ./node_modules/nuxt/bin/nuxt.mjs dev --port 5000",
+    "dev:nuxt": "nuxt dev --port 5000",
     "generate": "nuxt generate",
     "preview": "node --max-old-space-size=8192 ./node_modules/nuxt/bin/nuxt.mjs preview",
     "postinstall": "prisma generate && nuxt prepare",
@@ -15,6 +16,7 @@
     "lint": "eslint .",
     "test:security": "node --import tsx --test tests/security/*.test.ts",
     "smoke:staging": "node scripts/smoke.mjs",
+    "smoke:api": "node scripts/api-smoke.mjs",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {

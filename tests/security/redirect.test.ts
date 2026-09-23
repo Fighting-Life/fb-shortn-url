@@ -5,10 +5,11 @@ import test from "node:test";
 import { hasMinRole } from "../../server/utils/auth";
 import { campaignScope, generateShortCode } from "../../server/utils/campaign";
 import {
+  selectRotatedTarget,
   shouldUseBlockedDestination,
   type RedirectContext,
 } from "../../server/utils/redirect";
-import { campaignInputSchema } from "../../shared/utils/campaign";
+import { campaignInputSchema, ruleConfigSchema } from "../../shared/utils/campaign";
 import { loginSchema } from "../../shared/utils/validator";
 
 const baseContext: RedirectContext = {
@@ -25,6 +26,12 @@ test("campaign URLs only allow safe HTTPS destinations", () => {
     targetUrl: "https://example.com/landing",
     blockedUrl: "https://example.com/blocked",
     trackingConfig: {},
+    ruleConfig: {
+      device: { allow: ["mobile"], exclude: [] },
+      country: { allow: ["ID"], exclude: [] },
+      ip: { allow: [], exclude: ["203.0.113.0/24"] },
+      blockBots: true,
+    },
   });
 
   assert.equal(valid.targetUrl, "https://example.com/landing");
@@ -46,6 +53,41 @@ test("campaign URLs only allow safe HTTPS destinations", () => {
     blockedUrl: "https://example.com/blocked",
     trackingConfig: {},
   }));
+  assert.throws(() => ruleConfigSchema.parse({
+    ip: { allow: ["not-an-ip"], exclude: [] },
+  }));
+  assert.throws(() => ruleConfigSchema.parse({
+    country: { allow: ["IDN"], exclude: [] },
+  }));
+  assert.deepEqual(
+    campaignInputSchema.parse({
+      name: "Rotating campaign",
+      targetUrl: "https://affiliate.example/one",
+      targetUrls: ["https://affiliate.example/one", "https://affiliate.example/two"],
+      blockedUrl: "https://example.com/blocked",
+      trackingConfig: {},
+    }).targetUrls,
+    ["https://affiliate.example/one", "https://affiliate.example/two"],
+  );
+  assert.throws(() => campaignInputSchema.parse({
+    name: "Invalid rotating campaign",
+    targetUrl: "https://affiliate.example/one",
+    targetUrls: ["https://affiliate.example/one", "http://affiliate.example/two"],
+    blockedUrl: "https://example.com/blocked",
+    trackingConfig: {},
+  }));
+});
+
+test("rotator chooses from safe target pool and falls back for legacy campaigns", () => {
+  const targets = ["https://affiliate.example/one", "https://affiliate.example/two"];
+
+  assert.equal(selectRotatedTarget(targets, "https://fallback.example", () => 1), "https://affiliate.example/two");
+  assert.equal(selectRotatedTarget([], "https://fallback.example", () => 0), "https://fallback.example/");
+  assert.equal(
+    selectRotatedTarget(["javascript:alert(1)", "https://affiliate.example/safe"], "https://fallback.example", () => 0),
+    "https://affiliate.example/safe",
+  );
+  assert.throws(() => selectRotatedTarget([], "http://unsafe.example", () => 0));
 });
 
 test("redirect rules block excluded values and non-allowed values", () => {
@@ -91,6 +133,14 @@ test("redirect rules identify bots and allow matching values", () => {
       baseContext,
     ),
     false,
+  );
+  assert.equal(
+    shouldUseBlockedDestination({ country: { allow: ["ID"] } }, { ...baseContext, country: null }),
+    true,
+  );
+  assert.equal(
+    shouldUseBlockedDestination({ ip: { allow: ["not-an-ip"] } }, baseContext),
+    true,
   );
 });
 

@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       message: response?.message || "Password reset email sent successfully.",
     };
   } catch (error) {
+    console.error(error);
     throw handleRequestError(error);
   }
 });

@@ -1,10 +1,14 @@
-import { readBody, type H3Event } from "h3";
+import { getRouterParam, readBody, type H3Event } from "h3";
 import {
   updateAvatarOnlySchema,
   updateProfileSchema,
 } from "../../shared/utils/validator";
 import { getAllHeaderIdentifiers, handleRequestError } from "../utils/api";
-import { buildSessionUser, getSessionFromContext } from "../utils/auth";
+import {
+  buildSessionUser,
+  getSessionFromContext,
+  requireAdmin,
+} from "../utils/auth";
 import { prisma } from "../utils/prisma";
 
 export class UserHandler {

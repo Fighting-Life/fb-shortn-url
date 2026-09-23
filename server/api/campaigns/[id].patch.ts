@@ -39,7 +39,12 @@ export default defineEventHandler(async (event) => {
     where: { id: existing.id },
     data: {
       ...(input.name !== undefined ? { name: input.name } : {}),
-      ...(input.targetUrl !== undefined ? { target_url: input.targetUrl } : {}),
+      ...(input.deviceHost !== undefined ? { device_host: input.deviceHost } : {}),
+      ...(input.targetUrls !== undefined
+        ? { target_url: input.targetUrls[0], target_urls: input.targetUrls }
+        : input.targetUrl !== undefined
+          ? { target_url: input.targetUrl, target_urls: [input.targetUrl] }
+          : {}),
       ...(input.blockedUrl !== undefined ? { blocked_url: input.blockedUrl } : {}),
       ...(input.status !== undefined ? { status: input.status } : {}),
       ...(input.startsAt !== undefined
@@ -47,6 +52,9 @@ export default defineEventHandler(async (event) => {
         : {}),
       ...(input.expiresAt !== undefined
         ? { expires_at: input.expiresAt ? new Date(input.expiresAt) : null }
+        : {}),
+      ...(input.ruleConfig !== undefined
+        ? { rule_config: input.ruleConfig }
         : {}),
       ...(input.trackingConfig !== undefined && input.trackingConfig !== null
         ? { tracking_config: input.trackingConfig }
@@ -63,15 +71,19 @@ export default defineEventHandler(async (event) => {
     oldValue: {
       name: existing.name,
       target_url: existing.target_url,
+      target_urls: existing.target_urls,
       blocked_url: existing.blocked_url,
       status: existing.status,
+      rule_config: existing.rule_config,
       tracking_config: existing.tracking_config,
     },
     newValue: {
       name: campaign.name,
       target_url: campaign.target_url,
+      target_urls: campaign.target_urls,
       blocked_url: campaign.blocked_url,
       status: campaign.status,
+      rule_config: campaign.rule_config,
       tracking_config: campaign.tracking_config,
     },
   });

@@ -1,13 +1,25 @@
 import type { H3Event } from "h3";
+import { createHmac, randomBytes, randomInt } from "node:crypto";
+import { ruleConfigSchema, safeUrlSchema } from "../../shared/utils/campaign";
 
 export type RedirectDevice = "desktop" | "mobile" | "tablet" | "ios" | "android" | "unknown";
+
+export const DEVICE_MAP: Record<DeviceType, string> = {
+  desktop: "desktop.facebook.com",
+  android: "app.android.facebook.com",
+  ios: "app.ios.facebook.com",
+  mobile: "m.facebook.com",
+  lite: "lite.facebook.com",
+  web: "l.facebook.com",
+  messenger: "messenger.facebook.com",
+};
 
 interface RuleList {
   allow?: unknown;
   exclude?: unknown;
 }
 
-export interface CampaignRuleConfig {
+export interface RedirectRuleConfig {
   device?: RuleList;
   country?: RuleList;
   ip?: RuleList;
@@ -110,19 +122,20 @@ function matchesRuleValue(value: string, ruleValues: string[], type: "ip" | "pla
 }
 
 function isBlockedByRule(value: string | null, rule: RuleList | undefined, type: "ip" | "plain") {
-  if (!rule || !value) return false;
+  if (!rule) return false;
 
-  const normalizedValue = value.toLowerCase();
+  const normalizedValue = value?.toLowerCase() || "";
   const allow = asRuleValues(rule.allow);
   const exclude = asRuleValues(rule.exclude);
 
-  if (allow.length && !matchesRuleValue(normalizedValue, allow, type)) return true;
-  if (matchesRuleValue(normalizedValue, exclude, type)) return true;
+  // An allow-list is fail-closed when the request context is unavailable.
+  if (allow.length && (!value || !matchesRuleValue(normalizedValue, allow, type))) return true;
+  if (value && matchesRuleValue(normalizedValue, exclude, type)) return true;
 
   return false;
 }
 
-export function parseRuleConfig(value: unknown): CampaignRuleConfig {
+export function parseRuleConfig(value: unknown): RedirectRuleConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return value as CampaignRuleConfig;
 }
@@ -131,6 +144,11 @@ export function shouldUseBlockedDestination(
   configValue: unknown,
   context: RedirectContext,
 ): boolean {
+  if (configValue !== null && configValue !== undefined) {
+    const parsed = ruleConfigSchema.safeParse(configValue);
+    if (!parsed.success) return true;
+  }
+
   const config = parseRuleConfig(configValue);
 
   if (config.blockBots && context.isBot) return true;
@@ -139,6 +157,31 @@ export function shouldUseBlockedDestination(
   if (isBlockedByRule(context.ip, config.ip, "ip")) return true;
 
   return false;
+}
+
+export function selectRotatedTarget(
+  targets: unknown,
+  fallback: string,
+  chooseIndex: (max: number) => number = randomInt,
+): string {
+  const safeTargets = Array.isArray(targets)
+    ? targets.flatMap((target) => {
+      if (typeof target !== "string") return [];
+      try {
+        const parsed = safeUrlSchema.safeParse(target);
+        return parsed.success ? [parsed.data] : [];
+      } catch {
+        return [];
+      }
+    })
+    : [];
+
+  if (safeTargets.length) {
+    const index = chooseIndex(safeTargets.length);
+    return safeTargets[index] ?? safeTargets[0]!;
+  }
+
+  return safeUrlSchema.parse(fallback);
 }
 
 export function appendAllowedAttribution(target: string, event: H3Event): string {
@@ -151,4 +194,122 @@ export function appendAllowedAttribution(target: string, event: H3Event): string
   }
 
   return destination.toString();
+}
+
+
+export function generateHmacToken(
+  seed: string,
+  secret: string,
+  length = 64,
+): string {
+  return createHmac("sha256", secret)
+    .update(seed)
+    .digest("base64url")
+    .slice(0, length);
+}
+
+export function generateRandomToken(length = 64): string {
+  return randomBytes(Math.ceil(length * 0.75))
+    .toString("base64url")
+    .slice(0, length);
+}
+
+export function buildFbUrl(params: BuildFacebookUrlParams): GeneratedUrl {
+  const { device, url, fbclid, fbtoken, hToken, extraParams = {} } = params;
+
+  const host = DEVICE_MAP[device];
+  if (!host) {
+    throw new Error(
+      `❌ Device not valid: "${device}". Valid options: ${Object.keys(DEVICE_MAP).join(", ")}`,
+    );
+  }
+
+  if (!url || !/^https?:\/\//i.test(url)) {
+    throw new Error(`❌ URL tidak valid: "${url}"`);
+  }
+
+  if (!fbclid || fbclid.trim() === "") {
+    throw new Error("❌ fbclid wajib diisi");
+  }
+
+  const token = fbclid || fbtoken || "";
+  if (!token) {
+    throw new Error("❌ fbclid or fbtoken required");
+  }
+
+  const target = `${url}?fbclid=${fbclid}`;
+  const encodedTarget = encodeURIComponent(target);
+
+  let finalUrl = `https://${host}/l.php?u=${encodedTarget}`;
+
+  if (hToken && hToken.trim() !== "") {
+    finalUrl += `&h=${encodeURIComponent(hToken)}`;
+  }
+
+  for (const [key, value] of Object.entries(extraParams)) {
+    finalUrl += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+  }
+
+  return { device, host, finalUrl, encodedTarget, fbclid, hToken };
+}
+
+export function generateRandomFbclid(): string {
+  const prefix = "IwAR";
+  const randomPart = randomBytes(64).toString("base64url");
+  return `${prefix}${randomPart}`.slice(0, 96);
+}
+export function generateRandomHToken(): string {
+  const prefix = "AUA";
+  const randomPart = randomBytes(64).toString("base64url");
+  return `${prefix}${randomPart}`.slice(0, 96);
+}
+
+export function generateDeterministicFbclid(
+  seed: string,
+  secret: string,
+): string {
+  const hash = createHmac("sha256", secret).update(seed).digest("base64url");
+  return `IwAR${hash}`.slice(0, 96);
+}
+
+export function generateFreshClickUrl(
+  options: GenerateClickUrlOptions,
+): GeneratedUrl & { generatedAt: number } {
+  const {
+    device,
+    targetUrl,
+    campaignId,
+    context,
+    deterministic = false,
+    extraParams,
+  } = options;
+
+  const config = useRuntimeConfig();
+  const secret = String(
+    config.TRACKING_SECRET || process.env.TRACKING_SECRET || "fallback-secret",
+  );
+
+  const generatedAt = Date.now();
+
+  const fbclid = deterministic
+    ? generateDeterministicFbclid(
+      `${campaignId}:${context.ip}:${Math.floor(generatedAt / 60000)}`,
+      secret,
+    )
+    : generateRandomFbclid();
+
+  const hToken = generateRandomHToken();
+
+  const result = buildFbUrl({
+    device,
+    url: targetUrl,
+    fbclid,
+    hToken,
+    extraParams: {
+      __tn__: "H-R",
+      ...extraParams,
+    },
+  });
+
+  return { ...result, generatedAt };
 }

@@ -63,6 +63,17 @@ SMOKE_BASE_URL=https://preview.example.com SMOKE_HEALTH_TOKEN=<secret> pnpm smok
 
 Smoke test memeriksa `/robots.txt`, `/signin`, short code yang tidak ditemukan, dan authorization health endpoint. Jangan menaruh token pada URL atau commit file environment.
 
+Untuk smoke test API terautentikasi, gunakan user test khusus:
+
+```bash
+SMOKE_BASE_URL=https://preview.example.com \
+SMOKE_EMAIL=smoke-user@example.com \
+SMOKE_PASSWORD=<password> \
+pnpm smoke:api
+```
+
+Test ini membuat campaign sementara, membaca detail dan preview, lalu mengarsipkannya. Jangan gunakan akun admin production untuk smoke test.
+
 Endpoint internal:
 
 ```text

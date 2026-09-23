@@ -117,6 +117,7 @@ declare global {
     | "messenger";
 
 
+
   interface BuildFacebookUrlParams {
     device: DeviceType;
     url: string;
@@ -138,6 +139,21 @@ declare global {
     fbclid: string;
     hToken?: string;
     device?: DeviceType;
+  }
+
+  interface GenerateClickUrlOptions {
+    device: DeviceHost;
+    targetUrl: string;
+    campaignId: string;
+    context: {
+      ip: string;
+      userAgent: string;
+      country: string | null;
+    };
+    /** Kalau true → fbclid deterministik (anti-abuse). Default: random murni */
+    deterministic?: boolean;
+    /** Extra params, misal { __tn__: "H-R" } */
+    extraParams?: Record<string, string>;
   }
 
   interface UploadResult {

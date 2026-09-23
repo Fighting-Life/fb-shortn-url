@@ -29,12 +29,19 @@ export default defineEventHandler(async (event) => {
         data: {
           owner_id: userId,
           name: input.name,
+          device_host: input.deviceHost,
           short_code: generateShortCode(),
-          target_url: input.targetUrl,
+          target_url: input.targetUrls?.[0] ?? input.targetUrl,
+          ...(input.targetUrls !== undefined
+            ? { target_urls: input.targetUrls }
+            : { target_urls: [input.targetUrl] }),
           blocked_url: input.blockedUrl,
           status: input.status ?? "draft",
           starts_at: input.startsAt ? new Date(input.startsAt) : null,
           expires_at: input.expiresAt ? new Date(input.expiresAt) : null,
+          ...(input.ruleConfig !== undefined
+            ? { rule_config: input.ruleConfig }
+            : {}),
           ...(input.trackingConfig !== undefined && input.trackingConfig !== null
             ? { tracking_config: input.trackingConfig }
             : {}),
@@ -57,6 +64,7 @@ export default defineEventHandler(async (event) => {
     newValue: {
       name: campaign.name,
       short_code: campaign.short_code,
+      target_urls: campaign.target_urls,
       status: campaign.status,
     },
   });

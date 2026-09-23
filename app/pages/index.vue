@@ -115,7 +115,7 @@ const steps = [
             panduan integrasinya.</p>
         </div>
         <div class="flex gap-3 shrink-0">
-          <UButton to="/signup" color="primary">Hubungi kami</UButton>
+          <UButton to="/contact" color="primary">Hubungi kami</UButton>
           <UButton to="/faq" color="neutral" variant="ghost">Lihat FAQ</UButton>
         </div>
       </div>

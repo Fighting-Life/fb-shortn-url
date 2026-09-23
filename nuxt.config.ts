@@ -262,7 +262,6 @@ export default defineNuxtConfig({
     from: '"Link Mask" <id.tubexxi@gmail.com>',
     host: "smtp.gmail.com",
     port: 587,
-    secure: false,
     auth: {
       user: process.env.NUXT_NODEMAILER_AUTH_EMAIL,
       pass: process.env.NUXT_NODEMAILER_AUTH_PASS,

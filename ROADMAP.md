@@ -627,6 +627,28 @@ Opsional, aktif hanya jika dikonfigurasi:
 - [ ] Lakukan staged rollout dan rollback drill.
 - [ ] Tinjau ulang dependency advisory sebelum go-live.
 
+### Phase 10 — Campaign Rule Builder
+
+- [x] Tambahkan schema `ruleConfig` untuk device, country, IP/CIDR, dan bot.
+- [x] Persist rule config pada create dan edit campaign.
+- [x] Tambahkan UI allow/exclude device dan country.
+- [x] Tambahkan UI allow/exclude IP/CIDR dan bot blocking.
+- [x] Terapkan fail-closed untuk allow-list dan malformed rule config.
+- [x] Tambahkan security test untuk rule evaluation dan validation.
+- [x] Validasi typecheck dan production build.
+- [ ] Jalankan authenticated API smoke test pada deployment Preview.
+
+### Phase 11 — Multi-Destination Affiliate Rotator
+
+- [x] Tambahkan daftar hingga 50 target HTTPS pada campaign.
+- [x] Simpan daftar target dengan migration yang backfill campaign lama.
+- [x] Pilih destination secara random pada setiap redirect yang lolos rules.
+- [x] Pertahankan fallback kompatibel untuk campaign legacy.
+- [x] Tampilkan dan edit kembali seluruh destination pada dashboard.
+- [x] Tambahkan test validasi URL dan pemilihan target yang aman.
+- [x] Perbarui API smoke test untuk memverifikasi pool target.
+- [ ] Jalankan migration dan authenticated API smoke test pada deployment Preview.
+
 ---
 
 ## 11. Testing Strategy

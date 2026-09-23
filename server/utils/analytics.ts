@@ -38,6 +38,7 @@ export async function recordClickEvent(
   campaignId: string,
   outcome: ClickOutcome,
   context: RedirectContext,
+  generated?: { fbclid?: string; hToken?: string },
 ): Promise<void> {
   const now = new Date();
   const metricDay = metricDate(now);
@@ -64,6 +65,8 @@ export async function recordClickEvent(
         referrer_host: referrerHost(event),
         ip_hash: ipHash,
         attribution_hash: attributionHash,
+        generated_fbclid: generated?.fbclid ?? null,
+        generated_htoken: generated?.hToken ?? null,
         occurred_at: now,
       },
     }),

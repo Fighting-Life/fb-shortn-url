@@ -263,7 +263,7 @@ export class AuthHandler {
         where: { email },
       });
 
-      if (!user || !user.is_active || !user.password_hash) {
+      if (!user || !user.is_active) {
         throw createError({
           statusCode: 404,
           statusMessage: "User not found or account is disabled",
@@ -278,7 +278,7 @@ export class AuthHandler {
       const expires = new Date(Date.now() + 1000 * 60 * 60);
 
       await prisma.passwordResetToken.deleteMany({
-        where: { userId: user.id, used: false },
+        where: { user_id: user.id, used: false },
       });
 
       await prisma.passwordResetToken.create({
@@ -291,7 +291,7 @@ export class AuthHandler {
       });
 
       const config = useRuntimeConfig();
-      const baseUrl = config.public.PUBLIC_SITE_URL || "http://localhost:5000";
+      const baseUrl = config.PUBLIC_SITE_URL || "http://localhost:5000";
       const url = `${baseUrl.replace(/\/$/, "")}/reset?token=${encodeURIComponent(token)}`;
 
       const { sendMail } = useNodeMailer();
@@ -385,7 +385,7 @@ export class AuthHandler {
           },
         });
         await tx.passwordResetToken.deleteMany({
-          where: { userId: user.id, used: false },
+          where: { user_id: user.id, used: false },
         });
       });
 
@@ -394,6 +394,7 @@ export class AuthHandler {
         message: "Password reset successful.",
       };
     } catch (error) {
+      console.error(error);
       throw handleRequestError(error);
     }
   }
