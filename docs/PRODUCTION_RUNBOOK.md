@@ -153,7 +153,11 @@ pnpm build
 
 Jangan menjalankan upgrade massal atau `pnpm audit --fix` langsung pada branch production. Review changelog, lockfile, peer dependency, dan hasil build terlebih dahulu. Advisory transitive yang belum memiliki update upstream dicatat sebagai risiko dan dimonitor sampai patch tersedia.
 
-## 8. Data privacy
+## 8. Backup dan restore
+
+Ikuti prosedur drill lengkap pada `docs/BACKUP_RESTORE_DRILL.md`. Restore harus dilakukan ke database staging yang berbeda dari production dan tidak boleh menggunakan `migrate reset` pada production.
+
+## 9. Data privacy
 
 - Jangan log raw IP, raw `fbclid`, access token, atau password.
 - Pertahankan HMAC/hash analytics sesuai retention policy.

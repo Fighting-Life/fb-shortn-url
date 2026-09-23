@@ -312,110 +312,96 @@ export class UserHandler {
     }
   }
 
-  // async assignRole() {
-  //   try {
-  //     await requireAdmin(this.event);
-  //     const session = await getSessionFromContext(this.event);
-  //     const currentUser = session.user;
-  //     if (!currentUser) {
-  //       throw createError({
-  //         statusCode: 401,
-  //         statusMessage: "User not logged in",
-  //         data: {
-  //           code: "USER_NOT_LOGGED_IN",
-  //           message: "User not logged in",
-  //         },
-  //       });
-  //     }
+  async assignRole() {
+    try {
+      await requireAdmin(this.event);
+      const session = await getSessionFromContext(this.event);
+      const currentUser = session.user;
+      if (!currentUser) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: "User not logged in",
+          data: {
+            code: "USER_NOT_LOGGED_IN",
+            message: "User not logged in",
+          },
+        });
+      }
 
-  //     const userId = getRouterParam(this.event, "id")!;
-  //     if (userId === currentUser.id) {
-  //       throw createError({
-  //         statusCode: 400,
-  //         statusMessage: "You can't assign role to yourself",
-  //         data: {
-  //           code: "CANNOT_ASSIGN_ROLE_TO_SELF",
-  //           message: "You can't assign role to yourself",
-  //         },
-  //       });
-  //     }
+      const userId = getRouterParam(this.event, "id")!;
+      if (userId === currentUser.id) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "You can't assign role to yourself",
+          data: {
+            code: "CANNOT_ASSIGN_ROLE_TO_SELF",
+            message: "You can't assign role to yourself",
+          },
+        });
+      }
 
-  //     if (
-  //       currentUser.role === "admin"
-  //     ) {
-  //       throw createError({
-  //         statusCode: 400,
-  //         statusMessage: "You can't assign role to admin or superadmin",
-  //         data: {
-  //           code: "CANNOT_ASSIGN_ROLE_ADMIN_OR_SUPERADMIN",
-  //           message: "You can't assign role to admin or superadmin",
-  //         },
-  //       });
-  //     }
+      if (
+        currentUser.role === "admin"
+      ) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "You can't assign role to admin or superadmin",
+          data: {
+            code: "CANNOT_ASSIGN_ROLE_ADMIN_OR_SUPERADMIN",
+            message: "You can't assign role to admin or superadmin",
+          },
+        });
+      }
 
-  //     const body = assignRoleSchema.safeParse(await readBody(this.event));
-  //     if (!body.success) {
-  //       throw createError({
-  //         statusCode: 400,
-  //         statusMessage: "Invalid role data",
-  //         data: {
-  //           code: "INVALID_ROLE_DATA",
-  //           message: body.error.issues.map((issue) => issue.message).join(", "),
-  //         },
-  //       });
-  //     }
-  //     const user = await prisma.user.findUnique({
-  //       where: { id: userId },
-  //     });
-  //     if (!user || !user.is_active) {
-  //       throw createError({
-  //         statusCode: 404,
-  //         statusMessage: "User not found or inactive status",
-  //         data: {
-  //           code: "USER_NOT_FOUND",
-  //           message: "User not found or inactive status",
-  //         },
-  //       });
-  //     }
+      const body = assignRoleSchema.safeParse(await readBody(this.event));
+      if (!body.success) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "Invalid role data",
+          data: {
+            code: "INVALID_ROLE_DATA",
+            message: body.error.issues.map((issue) => issue.message).join(", "),
+          },
+        });
+      }
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user || !user.is_active) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: "User not found or inactive status",
+          data: {
+            code: "USER_NOT_FOUND",
+            message: "User not found or inactive status",
+          },
+        });
+      }
 
-  //     const role = await prisma.role.findFirst({
-  //       where: { name: body.data.role },
-  //     });
-  //     if (!role) {
-  //       throw createError({
-  //         statusCode: 404,
-  //         statusMessage: "Role not found",
-  //         data: {
-  //           code: "ROLE_NOT_FOUND",
-  //           message: "Role not found",
-  //         },
-  //       });
-  //     }
+      if (user.role === body.data.role) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "User already has this role",
+          data: {
+            code: "USER_ALREADY_HAS_ROLE",
+            message: "User already has this role",
+          },
+        });
+      }
 
-  //     if (user.role_id === role.id) {
-  //       throw createError({
-  //         statusCode: 400,
-  //         statusMessage: "User already has this role",
-  //         data: {
-  //           code: "USER_ALREADY_HAS_ROLE",
-  //           message: "User already has this role",
-  //         },
-  //       });
-  //     }
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          role: body.data.role,
+        },
+      });
 
-  //     await prisma.user.update({
-  //       where: { id: userId },
-  //       data: {
-  //         role_id: role.id,
-  //       },
-  //     });
-
-  //     return {
-  //       success: true,
-  //       message: "Role assigned successfully",
-  //     };
-  //   } catch (error) {
-  //     throw handleRequestError(error);
-  //   }
-  // }
+      return {
+        success: true,
+        message: "Role assigned successfully",
+      };
+    } catch (error) {
+      throw handleRequestError(error);
+    }
+  }
 }

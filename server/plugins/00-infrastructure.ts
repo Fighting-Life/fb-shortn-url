@@ -1,7 +1,6 @@
 import { AMQPChannel, AMQPClient, QueueOk } from "@cloudamqp/amqp-client";
 import { Redis } from "@upstash/redis";
-import type { H3Event } from "h3";
-import { ServerHandler } from "../handlers";
+import { getRequestURL, type H3Event } from "h3";
 
 let redisClient: Redis | null = null;
 
@@ -118,7 +117,10 @@ export default defineNitroPlugin((nitroApp) => {
       };
     }
 
-    event.context.handler = new ServerHandler(event);
+    if (getRequestURL(event).pathname.startsWith("/api/auth/")) {
+      const { ServerHandler } = await import("../handlers");
+      event.context.handler = new ServerHandler(event);
+    }
   });
 
   nitroApp.hooks.hook("close", async () => {
