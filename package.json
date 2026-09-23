@@ -52,7 +52,7 @@
     "pinia": "^4.0.3",
     "tailwindcss": "^4.3.3",
     "unique-names-generator": "^4.7.1",
-    "vue": "^3.5.40",
+    "vue": "^3.5.43",
     "vue3-toastify": "^0.2.9",
     "zod": "^3.25.76"
   },
