@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { trackingConfigSchema } from "./tracking";
 
 const PRIVATE_HOSTNAMES = new Set([
   "localhost",
@@ -63,6 +64,7 @@ export const campaignInputSchema = z.object({
   startsAt: z.string().datetime().nullable().optional(),
   expiresAt: z.string().datetime().nullable().optional(),
   status: z.enum(["draft", "active", "paused", "archived", "blocked"]).optional(),
+  trackingConfig: trackingConfigSchema,
 }).superRefine((value, context) => {
   if (value.startsAt && value.expiresAt) {
     const startsAt = new Date(value.startsAt);

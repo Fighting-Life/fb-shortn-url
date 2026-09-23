@@ -250,3 +250,15 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>;
 export type ActivatedTwoFactorInput = z.infer<typeof activatedTwoFactorSchema>;
 export type ResendEmailInput = z.infer<typeof resendEmailSchema>;
+
+
+export const contactSchema = z.object({
+  name: z.string().min(2, 'Nama minimal 2 karakter').max(100),
+  email: z.string().email('Format email tidak valid'),
+  company: z.string().max(120).optional().or(z.literal('')),
+  message: z.string().min(10, 'Pesan minimal 10 karakter').max(2000)
+})
+
+export const ContactSchema = toTypedSchema(contactSchema);
+
+export type ContactInput = z.output<typeof contactSchema>

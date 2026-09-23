@@ -4,6 +4,7 @@ import { apiError, apiSuccess } from "../../utils/api";
 import { writeAuditLog } from "../../utils/audit";
 import { requireSession } from "../../utils/auth";
 import { campaignScope, serializeCampaign } from "../../utils/campaign";
+import { invalidateRedirectCampaignCache } from "../../utils/campaign-cache";
 
 export default defineEventHandler(async (event) => {
   const session = await requireSession(event);
@@ -47,8 +48,13 @@ export default defineEventHandler(async (event) => {
       ...(input.expiresAt !== undefined
         ? { expires_at: input.expiresAt ? new Date(input.expiresAt) : null }
         : {}),
+      ...(input.trackingConfig !== undefined && input.trackingConfig !== null
+        ? { tracking_config: input.trackingConfig }
+        : {}),
     },
   });
+
+  await invalidateRedirectCampaignCache(event, existing.short_code);
 
   await writeAuditLog(event, {
     action: "UPDATE",
@@ -59,12 +65,14 @@ export default defineEventHandler(async (event) => {
       target_url: existing.target_url,
       blocked_url: existing.blocked_url,
       status: existing.status,
+      tracking_config: existing.tracking_config,
     },
     newValue: {
       name: campaign.name,
       target_url: campaign.target_url,
       blocked_url: campaign.blocked_url,
       status: campaign.status,
+      tracking_config: campaign.tracking_config,
     },
   });
 

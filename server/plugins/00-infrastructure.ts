@@ -17,6 +17,11 @@ let shuttingDown = false;
 const QUEUE_NAME = "task_queue";
 
 async function ensureRedisReady(config: ReturnType<typeof useRuntimeConfig>) {
+  if (!config.UPSTASH_REDIS_REST_URL || !config.UPSTASH_REDIS_REST_TOKEN) {
+    console.log("ℹ Upstash Redis is not configured; using local fallbacks");
+    return;
+  }
+
   const retryConfig = getRetryConfig(config);
 
   if (!redisClient) {
@@ -43,6 +48,11 @@ async function ensureRedisReady(config: ReturnType<typeof useRuntimeConfig>) {
 }
 
 async function ensureRabbitReady(config: ReturnType<typeof useRuntimeConfig>) {
+  if (!config.CLOUDAMQP_URL) {
+    console.log("ℹ CloudAMQP is not configured; queue worker disabled");
+    return;
+  }
+
   const retryConfig = getRetryConfig(config);
 
   if (rabbitChannel && rabbitQueue) return;

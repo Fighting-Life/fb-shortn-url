@@ -1,6 +1,11 @@
 import { getRequestHeader, getRequestURL, sendRedirect } from "h3";
 
-const publicApiPrefixes = ["/api/auth/", "/api/_auth/", "/api/public/"];
+const publicApiPrefixes = [
+  "/api/auth/",
+  "/api/_auth/",
+  "/api/public/",
+  "/api/tracking/",
+];
 const guestPagePrefixes = [
   "/signin",
   "/signup",

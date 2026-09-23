@@ -10,6 +10,14 @@ type CampaignRow = {
   status: CampaignStatus;
   starts_at: string | null;
   expires_at: string | null;
+  tracking_config?: {
+    enabled?: boolean;
+    consentRequired?: boolean;
+    ga4MeasurementId?: string | null;
+    metaPixelId?: string | null;
+    tiktokPixelId?: string | null;
+    histatsId?: string | null;
+  } | null;
   created_at: string;
 };
 
@@ -20,6 +28,12 @@ type CampaignForm = {
   status: CampaignStatus;
   startsAt: string;
   expiresAt: string;
+  trackingEnabled: boolean;
+  consentRequired: boolean;
+  ga4MeasurementId: string;
+  metaPixelId: string;
+  tiktokPixelId: string;
+  histatsId: string;
 };
 
 const emptyForm = (): CampaignForm => ({
@@ -29,6 +43,12 @@ const emptyForm = (): CampaignForm => ({
   status: "draft",
   startsAt: "",
   expiresAt: "",
+  trackingEnabled: false,
+  consentRequired: true,
+  ga4MeasurementId: "",
+  metaPixelId: "",
+  tiktokPixelId: "",
+  histatsId: "",
 });
 
 const campaigns = ref<CampaignRow[]>([]);
@@ -77,6 +97,12 @@ function editCampaign(campaign: CampaignRow) {
   form.status = campaign.status;
   form.startsAt = campaign.starts_at?.slice(0, 16) ?? "";
   form.expiresAt = campaign.expires_at?.slice(0, 16) ?? "";
+  form.trackingEnabled = campaign.tracking_config?.enabled === true;
+  form.consentRequired = campaign.tracking_config?.consentRequired !== false;
+  form.ga4MeasurementId = campaign.tracking_config?.ga4MeasurementId ?? "";
+  form.metaPixelId = campaign.tracking_config?.metaPixelId ?? "";
+  form.tiktokPixelId = campaign.tracking_config?.tiktokPixelId ?? "";
+  form.histatsId = campaign.tracking_config?.histatsId ?? "";
   previewUrl.value = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -93,6 +119,14 @@ async function saveCampaign() {
     status: form.status,
     startsAt: toIsoOrNull(form.startsAt),
     expiresAt: toIsoOrNull(form.expiresAt),
+    trackingConfig: {
+      enabled: form.trackingEnabled,
+      consentRequired: form.consentRequired,
+      ga4MeasurementId: form.ga4MeasurementId || null,
+      metaPixelId: form.metaPixelId || null,
+      tiktokPixelId: form.tiktokPixelId || null,
+      histatsId: form.histatsId || null,
+    },
   };
 
   try {
@@ -204,6 +238,32 @@ onMounted(loadCampaigns);
               <input v-model="form.expiresAt" type="datetime-local"
                 class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm" />
             </UFormField>
+            <div class="rounded-lg border border-default p-4 md:col-span-2">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 class="font-medium">Tracking integrations</h3>
+                  <p class="text-xs text-muted">Provider hanya diproses setelah consent visitor.</p>
+                </div>
+                <label class="flex items-center gap-2 text-sm"><input v-model="form.trackingEnabled" type="checkbox"
+                    class="rounded border-default" /> Enable</label>
+              </div>
+              <div v-if="form.trackingEnabled" class="grid gap-3 md:grid-cols-2">
+                <label class="flex items-center gap-2 text-sm md:col-span-2"><input v-model="form.consentRequired"
+                    type="checkbox" class="rounded border-default" /> Require consent before sending events</label>
+                <UFormField label="GA4 Measurement ID">
+                  <UInput v-model="form.ga4MeasurementId" class="w-full" placeholder="G-XXXXXXXXXX" />
+                </UFormField>
+                <UFormField label="Meta Pixel ID">
+                  <UInput v-model="form.metaPixelId" class="w-full" placeholder="Pixel ID" />
+                </UFormField>
+                <UFormField label="TikTok Pixel ID">
+                  <UInput v-model="form.tiktokPixelId" class="w-full" placeholder="Pixel ID" />
+                </UFormField>
+                <UFormField label="Histats ID">
+                  <UInput v-model="form.histatsId" class="w-full" placeholder="Counter ID" />
+                </UFormField>
+              </div>
+            </div>
             <div class="flex items-end md:col-span-2">
               <UButton type="submit" :loading="saving" :label="isEditing ? 'Save changes' : 'Create campaign'" />
             </div>

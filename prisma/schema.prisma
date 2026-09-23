@@ -2,6 +2,7 @@ generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl-arm64-openssl-3.0.x", "rhel-openssl-1.0.x", "debian-openssl-3.0.x", "darwin-arm64", "windows", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "debian-openssl-1.1.x"]
   previewFeatures = ["partialIndexes"]
+  // output   = "../shared/utils/prisma"
 }
 
 datasource db {
@@ -27,6 +28,13 @@ enum CampaignStatus {
   blocked
 }
 
+enum ClickOutcome {
+  target
+  blocked
+  expired
+  bot
+}
+
 model User {
   id                  String               @id @default(cuid())
   name                String               @db.Text
@@ -47,6 +55,7 @@ model User {
   auditLogs           AuditLog[]
   systemLogs          SystemLog[]
   campaigns           Campaign[]
+  sent_invitations    Invitation[]         @relation("InvitationSender")
 
   @@index([email], name: "user_email_idx")
   @@index([status], name: "user_status_idx")
@@ -111,26 +120,80 @@ model PasswordResetToken {
 }
 
 model Campaign {
-  id              String         @id @default(cuid())
+  id              String                @id @default(cuid())
   owner_id        String
-  name            String         @db.VarChar(160)
-  short_code      String         @unique @db.VarChar(32)
-  target_url      String         @db.Text
-  blocked_url     String         @db.Text
-  status          CampaignStatus @default(draft)
+  name            String                @db.VarChar(160)
+  short_code      String                @unique @db.VarChar(32)
+  target_url      String                @db.Text
+  blocked_url     String                @db.Text
+  status          CampaignStatus        @default(draft)
   starts_at       DateTime?
   expires_at      DateTime?
   rule_config     Json?
   tracking_config Json?
   deleted_at      DateTime?
-  created_at      DateTime       @default(now()) @db.Timestamptz
-  updated_at      DateTime       @updatedAt @db.Timestamptz
-  owner           User           @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  created_at      DateTime              @default(now()) @db.Timestamptz
+  updated_at      DateTime              @updatedAt @db.Timestamptz
+  owner           User                  @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  click_events    ClickEvent[]
+  daily_metrics   DailyCampaignMetric[]
 
   @@index([owner_id, status], name: "campaign_owner_status_idx")
   @@index([status, created_at], name: "campaign_status_created_idx")
   @@index([deleted_at], name: "campaign_deleted_idx")
   @@map("campaigns")
+}
+
+model ClickEvent {
+  id               String       @id @default(cuid())
+  campaign_id      String
+  outcome          ClickOutcome
+  device           String?      @db.VarChar(32)
+  country          String?      @db.Char(2)
+  referrer_host    String?      @db.VarChar(255)
+  ip_hash          String?      @db.Char(64)
+  attribution_hash String?      @db.Char(64)
+  occurred_at      DateTime     @default(now()) @db.Timestamptz
+  campaign         Campaign     @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  @@index([campaign_id, occurred_at], name: "click_event_campaign_time_idx")
+  @@index([outcome, occurred_at], name: "click_event_outcome_time_idx")
+  @@index([country, occurred_at], name: "click_event_country_time_idx")
+  @@map("click_events")
+}
+
+model DailyCampaignMetric {
+  id             String   @id @default(cuid())
+  campaign_id    String
+  metric_date    DateTime @db.Date
+  clicks         Int      @default(0)
+  target_clicks  Int      @default(0)
+  blocked_clicks Int      @default(0)
+  bot_clicks     Int      @default(0)
+  expired_clicks Int      @default(0)
+  campaign       Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  @@unique([campaign_id, metric_date], name: "daily_campaign_metric_campaign_date_unique")
+  @@index([metric_date], name: "daily_campaign_metric_date_idx")
+  @@map("daily_campaign_metrics")
+}
+
+model Invitation {
+  id            String    @id @default(cuid())
+  email         String    @db.Text
+  name          String    @db.Text
+  role          UserRole  @default(user)
+  token_hash    String    @unique @db.Char(64)
+  expires_at    DateTime  @db.Timestamptz
+  accepted_at   DateTime?
+  invited_by_id String
+  invited_by    User      @relation("InvitationSender", fields: [invited_by_id], references: [id], onDelete: Cascade)
+  created_at    DateTime  @default(now()) @db.Timestamptz
+
+  @@index([email], name: "invitation_email_idx")
+  @@index([expires_at], name: "invitation_expiry_idx")
+  @@index([invited_by_id], name: "invitation_sender_idx")
+  @@map("invitations")
 }
 
 model Setting {

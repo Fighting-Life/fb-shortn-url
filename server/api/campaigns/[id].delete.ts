@@ -3,6 +3,7 @@ import { apiSuccess } from "../../utils/api";
 import { writeAuditLog } from "../../utils/audit";
 import { requireSession } from "../../utils/auth";
 import { campaignScope } from "../../utils/campaign";
+import { invalidateRedirectCampaignCache } from "../../utils/campaign-cache";
 
 export default defineEventHandler(async (event) => {
   const session = await requireSession(event);
@@ -32,6 +33,8 @@ export default defineEventHandler(async (event) => {
       deleted_at: new Date(),
     },
   });
+
+  await invalidateRedirectCampaignCache(event, existing.short_code);
 
   await writeAuditLog(event, {
     action: "ARCHIVE",

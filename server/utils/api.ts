@@ -78,6 +78,27 @@ export function checkRateLimit(
   entry.count++;
   return true;
 }
+export async function checkReliableRateLimit(
+  event: H3Event,
+  key: string,
+  max: number,
+  windowMs: number,
+): Promise<boolean> {
+  const { redis } = useRedis(event);
+  if (redis) {
+    try {
+      const bucket = `rate:${key}`;
+      const count = await redis.incr(bucket);
+      if (count === 1) await redis.expire(bucket, Math.ceil(windowMs / 1000));
+      return count <= max;
+    } catch (error) {
+      console.warn("Distributed rate limit unavailable; using local fallback", error);
+    }
+  }
+
+  return checkRateLimit(key, max, windowMs);
+}
+
 export function getClientIp(event: H3Event): string {
   return (
     getHeader(event, "x-forwarded-for")?.split(",")[0]?.trim() ||

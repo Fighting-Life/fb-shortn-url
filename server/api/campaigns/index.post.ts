@@ -35,6 +35,9 @@ export default defineEventHandler(async (event) => {
           status: input.status ?? "draft",
           starts_at: input.startsAt ? new Date(input.startsAt) : null,
           expires_at: input.expiresAt ? new Date(input.expiresAt) : null,
+          ...(input.trackingConfig !== undefined && input.trackingConfig !== null
+            ? { tracking_config: input.trackingConfig }
+            : {}),
         },
       });
       break;
