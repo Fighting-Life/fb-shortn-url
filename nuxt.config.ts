@@ -107,11 +107,12 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    preset: 'vercel',
     compressPublicAssets: isProd
       ? {
-          gzip: true,
-          brotli: true,
-        }
+        gzip: true,
+        brotli: true,
+      }
       : true,
     experimental: {
       websocket: true,
@@ -161,15 +162,15 @@ export default defineNuxtConfig({
     },
     "/_nuxt/**": isProd
       ? {
-          headers: {
-            "Cache-Control": "public, max-age=31536000, immutable",
-          },
-        }
-      : {
-          headers: {
-            "Cache-Control": "no-store",
-          },
+        headers: {
+          "Cache-Control": "public, max-age=31536000, immutable",
         },
+      }
+      : {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
     "/api/**": {
       cors: true,
       cache: false,
@@ -282,6 +283,7 @@ export default defineNuxtConfig({
     serverBundle: "local",
   },
   image: {
+    provider: 'none',
     quality: 80,
     format: ["avif", "webp", "jpeg", "jpg", "png", "gif"],
     screens: {
@@ -293,6 +295,14 @@ export default defineNuxtConfig({
       xxl: 1536,
       "2xl": 1536,
     },
+  },
+  $production: {
+    image: {
+      provider: 'vercel',
+      vercel: {
+        minimumCacheTTL: 3600 // Cache optimized images for 1 hour
+      }
+    }
   },
   runtimeConfig: {
     APP_NAME: process.env.APP_NAME,

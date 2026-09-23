@@ -1,7 +1,9 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  const { user } = useUserSession();
+export default defineNuxtRouteMiddleware(async () => {
+  const { user, fetch, ready } = useUserSession();
 
-  if (user.value?.role !== "admin") {
+  if (!ready.value) await fetch();
+
+  if (user.value?.role !== "admin" || user.value?.status !== "active") {
     throw createError({
       statusCode: 403,
       statusMessage: "You are not authorized to access this resource",

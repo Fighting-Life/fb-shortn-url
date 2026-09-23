@@ -1,3 +1,5 @@
+import type { NavigationMenuItem } from "@nuxt/ui";
+
 /// <reference types="node" />
 
 declare global {
@@ -24,7 +26,7 @@ declare global {
     code: string;
     message?: string;
     redirect_url?: string;
-    details?: any;
+    details?: unknown;
     retryable?: boolean;
     timestamp?: string;
   }
@@ -60,7 +62,6 @@ declare global {
     type: string;
     sort_by: string;
     order_by: "asc" | "desc";
-    params: QueryParams;
     date_from: Date | string;
     date_to: Date | string;
   }
@@ -92,5 +93,51 @@ declare global {
     minutes: number;
     seconds: number;
   }
+
+  interface AppNavigationMenuItem extends NavigationMenuItem {
+    requireAdmin: boolean;
+  }
+
+  type ColorVariant =
+    | "indigo"
+    | "emerald"
+    | "amber"
+    | "red"
+    | "blue"
+    | "purple"
+    | "neutral";
+
+  type DeviceType =
+    | "desktop"
+    | "android"
+    | "ios"
+    | "mobile"
+    | "lite"
+    | "web"
+    | "messenger";
+
+
+  interface BuildFacebookUrlParams {
+    device: DeviceType;
+    url: string;
+    fbclid: string;
+    hToken?: string;
+    fbtoken?: string;
+    extraParams?: Record<string, string>;
+  }
+
+  interface GeneratedUrl {
+    device: DeviceType;
+    host: string;
+    finalUrl: string;
+    encodedTarget: string;
+  }
+
+  interface BatchUrlInput {
+    url: string;
+    fbclid: string;
+    hToken?: string;
+    device?: DeviceType;
+  }
 }
-export {};
+export { };

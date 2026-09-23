@@ -49,7 +49,7 @@ onMounted(async () => {
       countdown.value -= 1;
       if (countdown.value <= 0) {
         window.clearInterval(interval);
-        await navigateTo("/login");
+        await navigateTo("/signin");
       }
     }, 1000);
   } catch (error: any) {

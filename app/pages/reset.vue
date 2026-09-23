@@ -145,7 +145,7 @@ const submit = handleSubmit(async (values) => {
         </form>
         <div class="mt-4 text-center text-sm text-neutral-600 dark:text-neutral-400">
           Remember your password?
-          <NuxtLink to="/login" class="text-primary hover:underline">
+          <NuxtLink to="/signin" class="text-primary hover:underline">
             Login
           </NuxtLink>
         </div>

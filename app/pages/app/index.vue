@@ -1,7 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div></div>
+  <AppDashboardLayout id="dashboard" title="Dashboard">
+    <div>
+
+    </div>
+  </AppDashboardLayout>
 </template>
 
 <style scoped></style>

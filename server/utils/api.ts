@@ -1,5 +1,40 @@
 import type { H3Event } from "h3";
-import { H3Error } from "h3";
+import { H3Error, setResponseStatus } from "h3";
+
+export function apiSuccess<T>(
+  event: H3Event,
+  data: T,
+  message = "Success",
+  status = 200,
+  meta?: ApiMeta,
+): ApiResponse<T> {
+  setResponseStatus(event, status);
+  return {
+    status,
+    success: true,
+    message,
+    data,
+    ...(meta ? { meta } : {}),
+  };
+}
+
+export function apiError(
+  code: string,
+  message: string,
+  status = 400,
+  details?: unknown,
+): never {
+  throw createError({
+    statusCode: status,
+    statusMessage: message,
+    data: {
+      status,
+      success: false,
+      message,
+      error: { code, message, details },
+    },
+  });
+}
 
 export const handleRequestError = (error: unknown) => {
   if (error instanceof H3Error) {

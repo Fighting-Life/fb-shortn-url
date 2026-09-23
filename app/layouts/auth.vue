@@ -1,68 +1,147 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, NavigationMenuItem } from "@nuxt/ui";
-import { Link } from "@lucide/vue";
+const { session } = useUserSession();
+const route = useRoute();
+const open = ref(false);
 
-const open = ref(true);
+const isAdmin = computed(() =>
+  ["admin"].includes(session.value?.user?.role || "user"),
+);
 
-const config = useRuntimeConfig();
-const colorMode = useColorMode();
+const links = [
+  [
+    {
+      label: "Home",
+      to: "/app",
+      icon: "i-lucide-house",
+      requireAdmin: false,
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
+      label: "Campaigns",
+      icon: "i-lucide-link-2",
+      to: "/app/campaigns",
+      requireAdmin: false,
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
+      label: "Users",
+      icon: "mdi:account-supervisor",
+      to: "/app/users",
+      requireAdmin: true,
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
+      label: "Settings",
+      to: "/app/settings",
+      icon: "i-lucide-settings",
+      defaultOpen: false,
+      type: "trigger",
+      requireAdmin: true,
+    },
+    {
+      label: "Accounts",
+      to: "#",
+      icon: "i-lucide-settings",
+      defaultOpen: false,
+      type: "trigger",
+      requireAdmin: false,
+      children: [
+        {
+          label: "Profile",
+          icon: "i-lucide-user",
+          to: "/app/accounts",
+          exact: true,
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+        {
+          label: "Security",
+          to: "/app/accounts/security",
+          icon: "i-lucide-shield",
+          exact: true,
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+      ],
+    },
+  ],
+  [
+    {
+      label: "Home Page",
+      icon: "i-lucide-home",
+      to: "/",
+      requireAdmin: false,
+    },
+  ],
+] satisfies AppNavigationMenuItem[][];
+
+const userMenu = computed(() => {
+  const menus = links[0] as AppNavigationMenuItem[];
+  return menus.filter((item) => !item.requireAdmin) || [];
+});
+const adminMenu = computed(() => {
+  const menus = links[0] as AppNavigationMenuItem[];
+  return menus;
+});
+const groups = computed(() => [
+  {
+    id: "links",
+    label: "Go to",
+    items: links.flat(),
+  },
+]);
 </script>
 
 <template>
-  <div class="flex flex-1">
-    <USidebar
-      v-model:open="open"
-      collapsible="icon"
-      rail
-      :ui="{
-        container: 'h-full',
-        inner: 'bg-elevated/25 divide-transparent',
-        body: 'py-0',
-      }"
-    >
-      <template #header>
-        <NuxtLink to="/app" class="flex items-center gap-2.5 group">
-          <div
-            class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-600/30 transition-all group-hover:shadow-indigo-500/50 group-hover:scale-105"
-          >
-            <Link class="h-4 w-4 text-white" />
-          </div>
-          <span
-            :class="
-              cn(
-                'text-lg font-semibold tracking-tight text-neutral-900 dark:text-white',
-                open
-                  ? 'block transition-all duration-300 animate-fade-in'
-                  : 'hidden transition-all duration-300 animate-fade-out',
-              )
-            "
-          >
-            {{ config.public.APP_NAME }}
-          </span>
-        </NuxtLink>
+  <UDashboardGroup unit="rem">
+    <UDashboardSidebar id="default" v-model:open="open" collapsible resizable class="bg-elevated/25"
+      :ui="{ footer: 'lg:border-t lg:border-default' }">
+      <template #header="{ collapsed }">
+        <AppLogo :collapsed="collapsed" />
       </template>
-    </USidebar>
-    <div class="flex items-center justify-between w-full">
-      <div class="flex-1 flex flex-col">
-        <div
-          class="h-(--ui-header-height) shrink-0 flex items-center px-4 border-b border-default"
-        >
-          <UButton
-            icon="i-lucide-panel-left"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            aria-label="Toggle sidebar"
-            @click="open = !open"
-          />
-        </div>
-      </div>
-      <ThemeSwitcher />
-    </div>
-    <div class="flex-1 p-4 overflow-hidden">
-      <nuxt-page />
-    </div>
-  </div>
-</template>
 
-<style scoped></style>
+      <template #default="{ collapsed }">
+        <UDashboardSearchButton :collapsed="collapsed" size="md" class="ring-default bg-white dark:bg-neutral-950" />
+
+        <UNavigationMenu v-if="isAdmin" :collapsed="collapsed" :items="adminMenu" orientation="vertical" tooltip popover
+          class="space-y-5" :ui="{
+            list: 'space-y-2',
+            link: 'group relative w-full flex items-center text-neutral-800 dark:text-neutral-100 hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+            linkLeadingIcon:
+              'text-neutral-800 dark:text-neutral-100 group-hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+          }" />
+        <UNavigationMenu v-else :collapsed="collapsed" :items="userMenu" orientation="vertical" tooltip popover
+          class="space-y-5" :ui="{
+            list: 'space-y-2',
+            link: 'group relative w-full flex items-center text-neutral-800 dark:text-neutral-100 hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+            linkLeadingIcon:
+              'text-neutral-800 dark:text-neutral-100 group-hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+          }" />
+
+        <UNavigationMenu :collapsed="collapsed" :items="links[1]" orientation="vertical" tooltip
+          class="mt-auto space-y-5" :ui="{
+            list: 'space-y-2',
+            link: 'group relative w-full flex items-center text-neutral-800 dark:text-neutral-100 hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+            linkLeadingIcon:
+              'text-neutral-800 dark:text-neutral-100 group-hover:text-primary active:text-primary focus:text-primary focus-visible:before:ring-primary dark:focus-visible:before:ring-primary',
+          }" />
+      </template>
+
+      <template #footer="{ collapsed }">
+        <AppUserMenu :collapsed="collapsed" />
+      </template>
+    </UDashboardSidebar>
+    <UDashboardSearch :groups="groups" />
+    <NuxtPage />
+    <GlobalAlertDialog />
+    <PageLoader />
+  </UDashboardGroup>
+</template>

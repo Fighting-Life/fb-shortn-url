@@ -283,7 +283,7 @@ export async function requireSession(event: H3Event) {
     });
   }
 
-  if (!user.is_active) {
+  if (!user.is_active || user.status !== "active") {
     clearUserSession(event);
     throw createError({
       statusCode: 403,
@@ -360,7 +360,7 @@ export async function requireRole(event: H3Event, minRole: UserRole) {
 }
 
 export async function requireAdmin(event: H3Event) {
-  const adminName = ["superadmin" as UserRole];
+  const adminName: UserRole[] = ["admin"];
 
   const session = await requireSession(event);
   const role = getSessionRole(session);

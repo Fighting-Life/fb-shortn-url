@@ -1,6 +1,4 @@
-// import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaNeon } from "@prisma/adapter-neon";
-// @ts-ignore
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {

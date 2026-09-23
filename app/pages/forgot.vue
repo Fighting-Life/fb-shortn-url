@@ -47,7 +47,7 @@ const submit = handleSubmit(async (values) => {
       close: true,
       color: "success",
     });
-    await navigateTo("/login");
+    await navigateTo("/signin");
   } catch (error: any) {
     const statusMessage =
       error?.data?.statusMessage || error?.statusMessage || error?.message;
