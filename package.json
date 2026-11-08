@@ -52,9 +52,9 @@
     "nuxt-nodemailer": "1.1.4",
     "pg": "^8.23.0",
     "pinia": "^4.0.3",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "^4.3.4",
     "unique-names-generator": "^4.7.1",
-    "vue": "^3.5.40",
+    "vue": "^3.5.45",
     "vue3-toastify": "^0.2.9",
     "zod": "^3.25.76"
   },
@@ -87,7 +87,7 @@
     "tailwind-scrollbar": "^4.0.2",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "vue-tsc": "^3.3.11"
+    "vue-tsc": "^3.3.14"
   },
   "packageManager": "pnpm@12.4.1"
 }
